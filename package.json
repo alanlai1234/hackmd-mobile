@@ -1,0 +1,45 @@
+{
+  "name": "hackmd",
+  "main": "expo-router/entry",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@expo/ui": "~56.0.26",
+    "@expo/vector-icons": "^15.1.1",
+    "@hackmd/api": "^2.7.0",
+    "@lodev09/react-native-true-sheet": "^3.11.14",
+    "expo": "~56.0.6",
+    "expo-router": "~56.2.7",
+    "expo-splash-screen": "^56.0.10",
+    "expo-status-bar": "~56.0.4",
+    "highlight.js": "^11.12.0",
+    "markdown-it-container": "^4.0.0",
+    "markdown-it-mathjax": "^2.0.0",
+    "react": "19.2.3",
+    "react-native": "0.85.3",
+    "react-native-drawer-layout": "^4.2.10",
+    "react-native-gesture-handler": "~2.31.1",
+    "react-native-nitro-modules": "0.36.5",
+    "react-native-reanimated": "4.3.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "4.25.2",
+    "react-native-shared-webview": "file:../react-native-shared-webview",
+    "react-native-svg": "15.15.4",
+    "react-native-worklets": "0.8.3"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~56.0.4",
+    "markdown-it": "^15.0.2",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "lint": "expo lint"
+  },
+  "private": true
+}
