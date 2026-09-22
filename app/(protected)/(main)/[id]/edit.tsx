@@ -1,7 +1,7 @@
-import { Color } from '@/constants/Colors';
 import markdownit from 'markdown-it';
 import { useEffect, useState } from 'react';
 import { Text, TextInput } from 'react-native';
+import { useApp } from '@/components/viewProvider';
 
 const text = `
 e\`rg\`er
@@ -48,6 +48,7 @@ const renderInline = (tokens: any[]) => {
 }
 
 const Parsed = ({content}: {content: string}) => {
+	const { Color } = useApp();
 	let [texts, setTexts] = useState<any[]>([]);
 	useEffect(() => {
 		let cur = 0;
@@ -100,6 +101,7 @@ const Parsed = ({content}: {content: string}) => {
 export default function Edit() {
 	const [content, setContent] = useState(text);
 	const [select, setSelect] = useState({ start: 0, end: 0 })
+	const { Color } = useApp();
 
 	const onPress = (e: any) => {
 		if(e.nativeEvent.key == "Enter" && select.start==select.end){

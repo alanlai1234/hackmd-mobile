@@ -1,6 +1,6 @@
-import { Color } from '../constants/Colors';
+import { type themeType } from '@/constants/Colors';
 
-export default function markdown_css(): string{
+export default function markdown_css(Color: themeType): string{
 return `
 body{
   overflow-wrap: break-word;
@@ -8,7 +8,7 @@ body{
   line-height: 170%;
   margin: 20px;
   font-size: 45px;
-  color: black;
+  color: ${Color.text};
   font-weight: 500;
   font-family: Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol;
 }

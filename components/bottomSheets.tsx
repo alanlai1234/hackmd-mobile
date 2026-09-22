@@ -1,118 +1,13 @@
 import { AnimatedBtn } from '@/components/animtedBtn';
 import { useAuth } from '@/components/authProvider';
-import { Color } from '@/constants/Colors';
 import Octicons from '@expo/vector-icons/Octicons';
 import { type GetUserNotes } from '@hackmd/api';
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { Ref, RefObject, useEffect, useMemo, useState } from 'react';
-import { FlatList, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, Alert } from 'react-native';
+import { FlatList, Image, Pressable, Text, TextInput, TouchableOpacity, View, ScrollView, Alert } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-
-const styles = StyleSheet.create({
-    option: {
-        minHeight: 52,
-        alignItems: 'center',
-        padding: 18,
-        flexDirection: 'row',
-        gap: 8,
-    },
-    optionPressed: {
-        backgroundColor: Color.selected,
-    },
-    optionText: {
-        color: Color.text,
-        fontSize: 18,
-        fontWeight: '600',
-    },
-    empty: {
-        padding: 20,
-        color: Color.borderSelected,
-        textAlign: 'center',
-    },
-    tagSheet: {
-        paddingHorizontal: 16,
-        paddingTop: 15,
-        gap: 10
-    },
-    tagSearchContainer: {
-        height: 52,
-        paddingHorizontal: 16,
-        backgroundColor: Color.background,
-        borderRadius: 10,
-        color: Color.text,
-        borderWidth: 1,
-        borderColor: Color.border
-    },
-    tagControls: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        marginVertical: 16,
-    },
-    tagControl: {
-        height: 40,
-        paddingHorizontal: 14,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 7,
-        borderWidth: 2,
-        borderRadius: 7,
-    },
-    tagText: {
-        color: Color.text,
-        fontSize: 16,
-    },
-    matchControl: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    matchControlLeft: {
-        height: 40,
-        paddingHorizontal: 14,
-        borderWidth: 2,
-        borderTopLeftRadius: 10,
-        borderBottomLeftRadius: 10,
-        justifyContent: 'center',
-        borderColor: Color.border,
-        borderRightWidth: 0,
-    },
-    matchControlRight: {
-        height: 40,
-        paddingHorizontal: 14,
-        borderWidth: 2,
-        borderTopRightRadius: 10,
-        borderBottomRightRadius: 10,
-        justifyContent: 'center',
-        borderColor: Color.border,
-        borderLeftWidth: 0,
-    },
-    radioSelected: {
-        backgroundColor: Color.link,
-    },
-    tagRow: {
-        flex: 1,
-        minHeight: 40,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        padding: 8,
-        borderRadius: 10,
-        marginHorizontal: 5,
-    },
-    tagSelected: {
-        backgroundColor: 'rgb(65, 63, 130)'
-    },
-    tagName: {
-        flex: 1,
-        color: Color.text,
-        fontSize: 16,
-    },
-    tagCount: {
-        color: Color.borderSelected,
-        fontSize: 16,
-    },
-});
+import { useApp } from '@/components/viewProvider';
 
 type Workspace = {
     name: string;
@@ -137,6 +32,7 @@ type TagOption = {
 };
 
 export const WorkspaceSheet = ({ref, select, setSelect}: WorkspaceSheetProp) => {
+	const { Color, bottomSheetsStyle: styles } = useApp();
     const { aboutMe } = useAuth();
     const [ list, setList ] = useState<Workspace[]>();
     useEffect(() => {
@@ -180,6 +76,7 @@ export const WorkspaceSheet = ({ref, select, setSelect}: WorkspaceSheetProp) => 
 }
 
 export const TagSheet = ({ref, notes}: TagSheetProp) => {
+	const { Color, bottomSheetsStyle: styles } = useApp();
     const [query, setQuery] = useState('');
     const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
     const [matchMode, setMatchMode] = useState<'and' | 'or'>('or');
@@ -265,6 +162,7 @@ export const TagSheet = ({ref, notes}: TagSheetProp) => {
 };
 
 const Selection = ({ onPress, children }: {onPress?: () => void, children: React.ReactNode}) => {
+	const { Color, bottomSheetsStyle: styles } = useApp();
     return (
         <Pressable
             accessibilityRole="button"
@@ -281,6 +179,7 @@ const Selection = ({ onPress, children }: {onPress?: () => void, children: React
 }
 
 export const AddSheet = ({ ref }: {ref: RefObject<TrueSheet|null>}) => {
+	const { bottomSheetsStyle: styles } = useApp();
     const router = useRouter();
     const { client } = useAuth();
     const addEmpty = async () => {
@@ -316,6 +215,7 @@ type menuProp = {
 }
 
 export const ItemMenu = ({ ref, id, refresh }: menuProp) => {
+	const { bottomSheetsStyle: styles } = useApp();
     const { client } = useAuth();
     const delNote = () => {
         if (id.current == '') Alert.alert("No id chosen");

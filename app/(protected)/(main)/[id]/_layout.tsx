@@ -1,9 +1,9 @@
-import { Color } from '@/constants/Colors';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
 import { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useApp } from '@/components/viewProvider';
 
 export const unstable_settings = {
   initialRouteName: 'view',
@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
 
 const Tablist = ({select, setSelect, id}: {select: number, setSelect: Dispatch<SetStateAction<number>>, id: string}) => {
     const router = useRouter();
+	const { Color } = useApp();
 
     return(
         <View style={styles.tablist}>
@@ -78,6 +79,7 @@ export default function Layout() {
     //     )
     // }
     const { id, title } = useLocalSearchParams<{id: string, title: string}>();
+	const { Color } = useApp();
 
     return (
     <>

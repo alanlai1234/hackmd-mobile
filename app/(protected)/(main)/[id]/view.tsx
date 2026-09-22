@@ -1,18 +1,17 @@
 import { useAuth } from '@/components/authProvider';
-import { useWeb } from '@/components/viewProvider';
-import { Color } from '@/constants/Colors';
+import { useApp } from '@/components/viewProvider';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef } from 'react';
-import { View, Button } from 'react-native';
+import { View } from 'react-native';
 import { callback } from 'react-native-nitro-modules';
 import { SharedWebView } from 'react-native-shared-webview';
 
 const text = `
-\`\`\`
+oijweoifw
 `;
 
 export default function Note() {
-	const { session, update, mdview } = useWeb();
+	const { session, update, mdview, Color } = useApp();
 	const { client } = useAuth();
 	const { id } = useLocalSearchParams<{id: string}>();
 	const ref = useRef<any>(null);
@@ -25,7 +24,7 @@ export default function Note() {
 		}
 	}
 	useFocusEffect(useCallback(() => {
-		// update(mdview.render(text));
+		update(mdview.render(text));
 		// if (!client || !id) return;
 		// if(id != "-1"){
 		// 	load()
@@ -34,7 +33,7 @@ export default function Note() {
 	}, []))
 
 	return(
-		<View style={{flex: 1, backgroundColor: "white"}}>
+		<View style={{flex: 1, backgroundColor: Color.background}}>
 			<SharedWebView hybridRef={callback((r:any) => ref.current=r)} session={session} style={{flex: 1}}/>
 		</View>
 	)

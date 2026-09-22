@@ -3,131 +3,16 @@ import { AddBtn, AnimatedBtn } from '@/components/animtedBtn';
 import { useAuth } from '@/components/authProvider';
 import { AddSheet, TagSheet, WorkspaceSheet, ItemMenu } from '@/components/bottomSheets';
 import { DrawerContent } from '@/components/drawer';
-import { Color } from '@/constants/Colors';
 import Octicons from '@expo/vector-icons/Octicons';
 import { type GetUserNotes } from '@hackmd/api';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Stack, useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router/build/react-navigation';
 import { useCallback, useRef, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View, Button } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useWeb } from '@/components/viewProvider';
-
-const styles = StyleSheet.create({
-    topbar: {
-        height: 60,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingLeft: 10,
-        paddingRight: 10
-        // shadowColor: '#000',
-        // shadowOffset: { width: 0, height: 2 },
-        // shadowOpacity: 0.2,
-        // shadowRadius: 7,
-        // elevation: 8,
-    },
-    title: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    note: {
-        height: 85,
-		margin: 12,
-		marginBottom: 6,
-		// padding: 9,
-        justifyContent: 'center',
-        borderRadius: 6,
-        borderWidth: 1,
-        borderColor: Color.border,
-    },
-    drawerBtn: {
-        backgroundColor: Color.secondary,
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1
-    },
-    tagBtn: {
-        backgroundColor: Color.secondary,
-        flexDirection: 'row',
-        padding: 8,
-        borderRadius: 10,
-        alignItems: 'center',
-        borderWidth: 1
-    },
-    addBtn: {
-        position: 'absolute',
-        right: 20,
-        bottom: 24,
-        width: 56,
-        height: 56,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-        elevation: 5,
-    },
-    dialogBackdrop: {
-        flex: 1,
-        justifyContent: 'center',
-        padding: 24,
-        backgroundColor: 'rgba(0, 0, 0, 0.55)',
-    },
-    dialog: {
-        gap: 16,
-        padding: 20,
-        backgroundColor: Color.secondary,
-        borderWidth: 1,
-        borderColor: Color.border,
-        borderRadius: 14,
-    },
-    dialogTitle: {
-        color: Color.text,
-        fontSize: 20,
-        fontWeight: '700',
-    },
-    dialogInput: {
-        height: 48,
-        paddingHorizontal: 12,
-        color: Color.text,
-        backgroundColor: Color.background,
-        borderWidth: 1,
-        borderColor: Color.borderSelected,
-        borderRadius: 8,
-        fontSize: 16,
-    },
-    dialogError: {
-        color: '#fca5a5',
-        fontSize: 14,
-    },
-    dialogActions: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 10,
-    },
-    dialogButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 8,
-    },
-    dialogButtonPrimary: {
-        backgroundColor: Color.link,
-    },
-    dialogButtonText: {
-        color: Color.text,
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    itemMenu: {
-        flex: 1,
-        justifyContent: 'center',
-        padding: 10,
-        borderTopRightRadius: 6,
-        borderBottomRightRadius: 6,
-    }
-});
+import { useApp } from '@/components/viewProvider';
 
 interface noteItem {
     id: string;
@@ -139,6 +24,7 @@ interface noteItem {
 
 const ListItem = ({id, title, time, ref, setMenuId}: noteItem) => {
     const router = useRouter();
+	const { Color, indexStyle: styles } = useApp();
 
     return (
         <AnimatedBtn
@@ -170,6 +56,7 @@ const ListItem = ({id, title, time, ref, setMenuId}: noteItem) => {
 }
 
 export default function Home(){
+	const { session, Color, indexStyle: styles } = useApp();
     // tmp
     let notes: GetUserNotes[] = [];
     for(let i=0; i<20; i++){
@@ -182,7 +69,6 @@ export default function Home(){
     }
     const { client } = useAuth();
     const [ select, setSelect ] = useState(0);
-    const { session } = useWeb();
     // const [notes, setNotes] = useState<GetUserNotes>([]);
     async function fetchList(){
         // const list = await client?.getNoteList();
@@ -208,7 +94,7 @@ export default function Home(){
                 onOpen={() => setDrawerOpen(true)}
                 onClose={() => setDrawerOpen(false)}
                 renderDrawerContent={DrawerContent}
-                drawerStyle={{backgroundColor: Color.background, width: "65%"}}
+                drawerStyle={styles.drawer}
             >
                 <View style={styles.topbar}>
                     <View style={{width: 90, alignItems: 'flex-start'}}>
@@ -241,9 +127,8 @@ export default function Home(){
                     style={styles.addBtn}
                     onPress={() => addRef.current?.present()}
                 >
-                    <Octicons name="plus" size={28} color={Color.text}/>
+                    <Octicons name="plus" size={28} iconstyle={{color: 'white'}}/>
                 </AddBtn>
-     			<Button title="press" onPress={() => session.loadhtml("heyhey")}/>
             </Drawer>
             <WorkspaceSheet ref={workspaceRef} select={select} setSelect={setSelect}/>
             <TagSheet ref={tagRef} notes={notes}/>

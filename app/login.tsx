@@ -1,13 +1,13 @@
 import { useAuth } from '@/components/authProvider';
-import { Color } from '@/constants/Colors';
+import { dark as Color } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+	StyleSheet,
     Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
-    StyleSheet,
     Text,
     TextInput,
     View

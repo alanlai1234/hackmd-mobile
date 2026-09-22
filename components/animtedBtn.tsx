@@ -1,22 +1,24 @@
-import { Color } from "@/constants/Colors";
 import { Pressable, type StyleProp, type ViewStyle } from "react-native";
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { useApp } from '@/components/viewProvider';
 
 type btnProp = {
     children?: React.ReactNode;
     onPress?: () => void;
     onLongPress?: () => void;
     style?: StyleProp<ViewStyle>;
+	backgroundColor?: string;
 }
 
-export const AnimatedBtn = ({children, onPress, onLongPress, style}:btnProp) => {
+export const AnimatedBtn = ({children, onPress, onLongPress, style, backgroundColor}:btnProp) => {
     const change = useSharedValue(0);
+	const { Color } = useApp();
     const anim = useAnimatedStyle(() => {
         return {
             backgroundColor: interpolateColor(
                 change.value,
                 [0, 1],
-                [Color.secondary, Color.selected]
+                [backgroundColor ?? Color.secondary, Color.selected]
             ),
             borderColor: interpolateColor(
                 change.value,
@@ -46,6 +48,7 @@ export const AnimatedBtn = ({children, onPress, onLongPress, style}:btnProp) => 
 
 export const AddBtn = ({children, onPress, onLongPress, style}:btnProp) => {
     const change = useSharedValue(0);
+	const { Color } = useApp();
     const anim = useAnimatedStyle(() => {
         return {
             backgroundColor: interpolateColor(
