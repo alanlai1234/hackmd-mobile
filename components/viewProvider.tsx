@@ -1,28 +1,27 @@
 import { useAuth } from '@/components/authProvider';
 import { useRouter } from 'expo-router';
-import { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import { type RefObject, createContext, useContext, useEffect, useState, useMemo, useRef } from 'react';
 import { Linking, useColorScheme, Appearance } from 'react-native';
 import { BrowserSessionConstructor } from 'react-native-shared-webview';
 import { mdviewInit } from '@/components/markdownit';
 import viewHTML from '@/components/viewhtml';
-import { type themeType, light, dark} from '@/constants/Colors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { light, dark} from '@/constants/Colors';
+import { createMMKV } from 'react-native-mmkv'
+import { GetUserNotes, GetUserTeams } from '@hackmd/api';
 import * as SplashScreen from 'expo-splash-screen';
-import * as styles from '@/components/stylesheets';
+import useTheme from '@/components/themeState';
+import { useShallow } from 'zustand/react/shallow';
+import useData from '@/components/dataState';
 
-SplashScreen.preventAutoHideAsync();
+export const storage = createMMKV()
 
 type appContextType = {
 	session: any;
 	update(content: string): void;
 	mdview: any;
-	colorscheme: number;
-	setColorscheme: any;
-	Color: themeType;
-	indexStyle: any;
-	settingsStyle: any;
-	drawerStyle: any;
-	bottomSheetsStyle: any;
+	teams: RefObject<GetUserTeams>;
+	curTeam: RefObject<number>;
+	fetchList() : void;
 }
 
 const AppContext = createContext<appContextType | null>(null);
@@ -36,47 +35,57 @@ const mdview = mdviewInit();
 
 export const AppProvider = ({children}: {children: React.ReactNode}) => {
 	const { client } = useAuth();
-	const [tmp, setTmp] = useState("");
+	const { setColor, Color } = useTheme(useShallow((state)=>({setColor: state.setColor, Color: state.Color})));
+	const { setNotes, setTitle, colorscheme, setColorscheme, setRefresh} = useData(useShallow((s)=>({setNotes:s.setNotes, setTitle:s.setTitle, colorscheme: s.colorscheme, setColorscheme: s.setColorscheme, setRefresh: s.setRefresh})));
+	const tmp = useRef("");
 	const router = useRouter();
 	const systemColor = useColorScheme();
 
-	const [session] = useState(() => new BrowserSessionConstructor());
-	const [loaded, setLoaded] = useState(false);
-	const [colorscheme, setColorscheme] = useState(0);
+	const session = useMemo(() => new BrowserSessionConstructor(), []);
+	const loaded = useRef(false);
+	const teams = useRef<GetUserTeams>([]);
+	const curTeam = useRef(-1);
 	const update = (content: string) => {
-		if(!loaded){
-			setTmp(content);
+		if(!loaded.current){
+			tmp.current = content;
 		}
 		else{
 			session.postMessage(content);
 		}
 	}
-	const [Color, setColor] = useState(dark);
-	const indexStyle = useMemo(() => styles.index(Color), [Color])
-	const settingsStyle = useMemo(() => styles.settings(Color), [Color])
-	const drawerStyle = useMemo(() => styles.drawer(Color), [Color])
-	const bottomSheetsStyle = useMemo(() => styles.bottomSheets(Color), [Color])
+
+    async function fetchList(){
+		if(curTeam.current == -1){
+			setTitle("My Workspace");
+			const list = await client?.getNoteList();
+			if(list) setNotes(list);
+		}
+		else{
+			setTitle(teams.current[curTeam.current].name);
+			const list = await client?.getTeamNotes(teams.current[curTeam.current].path)
+			if(list) setNotes(list);
+		}
+		setRefresh(false);
+    }
 
 	useEffect(() => {
-		async function init(){
-			let get = await AsyncStorage.multiGet(["colorscheme"])
-			if(get[0][1] == null){
-				await AsyncStorage.setItem("colorscheme", "0");
-				setColorscheme(0);
-			}
-			else setColorscheme(parseInt(get[0][1]));
+		(async () => {
+			let get = storage.getNumber("colorscheme")
+			if(get == null) setColorscheme(0);
+			else setColorscheme(get);
+
+			teams.current = (await client?.getTeams())??[];
 
 			session.loadhtml(viewHTML(Color));
 			session.onMessage = (event: any) => {
 				if(event.nativeEvent.data == 1){
-					session.postMessage(tmp);
-					setLoaded(true);
+					if(tmp.current.length>0) session.postMessage(tmp.current);
+					tmp.current = "";
+					loaded.current = true;
 				}
 			};
 			session.onShouldStartLoadWithRequest = async (event: any) => {
 				if(event.url == "about:blank") {
-					session.postMessage(tmp);
-					setLoaded(true);
 					return true;
 				}
 				if(event.url.startsWith("https://") || event.url.startsWith("http://")) {
@@ -89,27 +98,26 @@ export const AppProvider = ({children}: {children: React.ReactNode}) => {
 				}
 				return false;
 			}
+			await fetchList();
 			SplashScreen.hide();
-		}
-
-		init();
+		})();
 	}, []);
 
 	useEffect(() => {
 		if(colorscheme == 0){
-			Appearance.setColorScheme(null);
 			setColor(Appearance.getColorScheme() == "dark"? dark: light);
-			AsyncStorage.setItem("colorscheme", "0");
+			Appearance.setColorScheme("unspecified");
+			storage.set("colorscheme", 0);
 		}
 		else if(colorscheme == 1){
 			setColor(dark);
 			Appearance.setColorScheme("dark");
-			AsyncStorage.setItem("colorscheme", "1");
+			storage.set("colorscheme", 1);
 		}
 		else{
 			setColor(light);
 			Appearance.setColorScheme("light");
-			AsyncStorage.setItem("colorscheme", "2");
+			storage.set("colorscheme", 2);
 		}
 	}, [colorscheme])
 	useEffect(() => {
@@ -119,7 +127,7 @@ export const AppProvider = ({children}: {children: React.ReactNode}) => {
 	}, [systemColor])
 
 	return (
-		<AppContext.Provider value={{session, update, mdview, colorscheme, setColorscheme, Color, indexStyle, settingsStyle, drawerStyle, bottomSheetsStyle}}>
+		<AppContext.Provider value={{session, update, mdview, teams, curTeam, fetchList}}>
 			{children}
 		</AppContext.Provider>
 	)

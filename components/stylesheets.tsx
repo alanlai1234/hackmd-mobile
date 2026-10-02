@@ -108,7 +108,27 @@ export const index = (Color: themeType) => StyleSheet.create({
         borderTopRightRadius: 6,
         borderBottomRightRadius: 6,
     },
-	drawer: {backgroundColor: Color.background, width: "65%"}
+	drawer: {backgroundColor: Color.background, width: "65%"},
+	searchBarContainer: {
+		position: "absolute",
+        height: 52,
+		width: "100%",
+		paddingHorizontal: 20,
+	},
+	searchBarContainer2: {
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: 'center',
+        backgroundColor: Color.accent,
+		borderBottomRightRadius: 20,
+		borderBottomLeftRadius: 20,
+	},
+	searchBar: {
+		flex: 1,
+        paddingHorizontal: 16,
+        color: Color.text,
+		fontSize: 18
+	}
 });
 
 export const settings = (Color: themeType) => StyleSheet.create({
@@ -139,7 +159,22 @@ export const settings = (Color: themeType) => StyleSheet.create({
 	optionPressed: {
         backgroundColor: Color.selected,
     },
-
+	button: {
+		minHeight: 40,
+        alignItems: 'center',
+		justifyContent: 'center',
+        borderRadius: 8,
+        backgroundColor: Color.secondary,
+		width: "100%",
+		marginHorizontal: 10,
+	},
+	input: {
+		width: "100%",
+		fontSize: 17,
+		paddingTop: 5,
+		marginVertical: 5,
+		color: Color.text
+	}
 })
 
 export const drawer = (Color: themeType) => StyleSheet.create({
@@ -156,9 +191,6 @@ export const drawer = (Color: themeType) => StyleSheet.create({
         borderRadius: 6,
         marginBottom: 5,
         padding: 4,
-    },
-    treeIndentOne: {
-        marginLeft: 10,
     },
     drawerText: {
         color: Color.text,
@@ -216,7 +248,7 @@ export const bottomSheets = (Color: themeType) => StyleSheet.create({
         height: 52,
         paddingHorizontal: 16,
         backgroundColor: Color.background,
-        borderRadius: 10,
+        borderRadius: 20,
         color: Color.text,
         borderWidth: 1,
         borderColor: Color.border
@@ -290,3 +322,30 @@ export const bottomSheets = (Color: themeType) => StyleSheet.create({
         fontSize: 16,
     },
 });
+
+export const notePage = (Color: themeType) => StyleSheet.create({
+    tablist: {
+        flexDirection: 'row',
+        width: 150,
+		position: 'absolute',
+		bottom: 0,
+		alignSelf: 'center',
+		backgroundColor: Color.border,
+		borderTopLeftRadius: 20,
+		borderTopRightRadius: 20,
+		padding: 5,
+		paddingBottom: 10,
+		gap: 5,
+		// shadowColor: '#000',
+		// shadowOffset: { width: 0, height: 4 },
+		// shadowOpacity: 0.25,
+		// shadowRadius: 12,
+		// elevation: 10,
+    },
+    tabtrigger: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+});
+

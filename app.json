@@ -36,15 +36,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-	  [
+      [
         "expo-build-properties",
         {
           "ios": {
             "enableSceneSupport": true,
-			"deploymentTarget": "27.0"
+            "deploymentTarget": "27.0"
           }
         }
-      ]
+      ],
+      "expo-font",
+      "expo-status-bar",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

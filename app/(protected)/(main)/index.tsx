@@ -1,30 +1,30 @@
 import { DocumentIcon } from '@/assets/icons';
 import { AddBtn, AnimatedBtn } from '@/components/animtedBtn';
-import { useAuth } from '@/components/authProvider';
-import { AddSheet, TagSheet, WorkspaceSheet, ItemMenu } from '@/components/bottomSheets';
 import { DrawerContent } from '@/components/drawer';
 import Octicons from '@expo/vector-icons/Octicons';
-import { type GetUserNotes } from '@hackmd/api';
-import { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { Note } from '@hackmd/api';
 import { Stack, useRouter } from 'expo-router';
-import { useFocusEffect } from 'expo-router/build/react-navigation';
-import { useCallback, useRef, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { TextInput, Text, TouchableOpacity, View, RefreshControl } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/components/viewProvider';
+import { LegendList } from "@legendapp/list/react-native"
+import useTheme from '@/components/themeState';
+import { useShallow } from 'zustand/react/shallow';
+import Animated, { useSharedValue, withSpring, cancelAnimation } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
+import useData from '@/components/dataState';
 
 interface noteItem {
     id: string;
     title: string;
     time: string;
-    ref: React.RefObject<TrueSheet|null>;
-    setMenuId: React.RefObject<string>;
 };
 
-const ListItem = ({id, title, time, ref, setMenuId}: noteItem) => {
+const ListItem = ({id, title, time}: noteItem) => {
     const router = useRouter();
-	const { Color, indexStyle: styles } = useApp();
+	const { styles, Color } = useTheme(useShallow((state)=>({styles: state.indexStyle, Color: state.Color})));
 
     return (
         <AnimatedBtn
@@ -32,8 +32,7 @@ const ListItem = ({id, title, time, ref, setMenuId}: noteItem) => {
                 router.push({pathname: "/[id]/view", params:{id: id, title: title}});
             }}
             onLongPress={() => {
-                setMenuId.current = id;
-                ref.current?.present();
+				router.push({pathname: "/itemSheet", params:{addID: id}});
             }}
             style={styles.note}
         >
@@ -56,35 +55,73 @@ const ListItem = ({id, title, time, ref, setMenuId}: noteItem) => {
 }
 
 export default function Home(){
-	const { session, Color, indexStyle: styles } = useApp();
     // tmp
-    let notes: GetUserNotes[] = [];
-    for(let i=0; i<20; i++){
-        notes.push({
-            id: i.toString(),
-            title: `note ${i}`,
-            time: "2024-06-01",
-            tags: [""]
-        });
-    }
-    const { client } = useAuth();
-    const [ select, setSelect ] = useState(0);
-    // const [notes, setNotes] = useState<GetUserNotes>([]);
-    async function fetchList(){
-        // const list = await client?.getNoteList();
-        // if(list){
-        //     setNotes(list);
-        // }
-    }
-    useFocusEffect(useCallback(() => {
-        // fetchList();
-    }, []))
+    // let notes: GetUserNotes[] = [];
+    // for(let i=0; i<20; i++){
+    //     notes.push({
+    //         id: i.toString(),
+    //         title: `note ${i}`,
+    //         time: "2024-06-01",
+    //         tags: [""]
+    //     });
+    // }
+	const { styles, Color } = useTheme(useShallow((state)=>({styles: state.indexStyle, Color: state.Color})));
+	const { fetchList} = useApp();
+	const { notes, title, refresh, setRefresh, selectedTags} = useData(useShallow((s)=>({notes:s.notes, title:s.title, refresh:s.refresh, setRefresh:s.setRefresh, selectedTags:s.selectedTags})));
+	const [selectedNotes, setSelectedNotes] = useState<number[]>([]);
+	const taggedNotes = useRef<number[]>([]);
+	const updateSelectedNotes = () => {
+		if(query == "") setSelectedNotes(taggedNotes.current);
+		else setSelectedNotes(taggedNotes.current.filter((item) => notes[item].title.toLowerCase().includes(query.toLowerCase())))
+	}
+
+	useEffect(() => {
+		if(refresh){
+			fetchList();
+		}
+	}, [refresh])
+	useEffect(() => {
+		taggedNotes.current = Array.from({length: notes.length}, (_, index) => index);
+		updateSelectedNotes();
+	}, [notes])
+	useEffect(() => {
+		if(selectedTags.size == 0){
+			taggedNotes.current = Array.from({length: notes.length}, (_, index) => index);
+			updateSelectedNotes();
+			return;
+		}
+		taggedNotes.current = []
+		notes.forEach((item: Note, index) => {
+			if(item.tags == undefined) return;
+			item.tags.forEach((tag: string) => {
+				if(selectedTags.has(tag)){
+					taggedNotes.current.push(index);
+					return;
+				}
+			})
+		}) 
+		updateSelectedNotes();
+	}, [selectedTags])
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const workspaceRef = useRef<TrueSheet>(null);
-    const tagRef = useRef<TrueSheet>(null);
-    const addRef = useRef<TrueSheet>(null);
-    const menuRef = useRef<TrueSheet>(null);
-    const menuId = useRef("");
+	const router = useRouter();
+    const [query, setQuery] = useState('');
+	const top = useSharedValue(-55);
+	const searchOpen = () => {
+		cancelAnimation(top);
+		top.value = withSpring(0, {velocity: 1500});
+	}
+	const close = () => setQuery("");
+	const searchClose = () => {
+		top.value = withSpring(-55, {velocity: 1500}, () => {scheduleOnRN(close)});
+	}
+	useEffect(() => {
+		updateSelectedNotes();
+	}, [query])
+
+	const onRefresh = useCallback(() => {
+		setRefresh(true);
+		fetchList();
+	}, []);
 
     return (
 		<SafeAreaView style={{flex: 1, backgroundColor: Color.background}}>
@@ -99,41 +136,62 @@ export default function Home(){
                 <View style={styles.topbar}>
                     <View style={{width: 90, alignItems: 'flex-start'}}>
                         <AnimatedBtn onPress={() => setDrawerOpen(true)} style={styles.drawerBtn}>
-                            <Octicons name="three-bars" size={24} color="rgb(161,161,169)" />
+                            <Octicons name="three-bars" size={24} color={Color.titleText} />
                         </AnimatedBtn>
                     </View>
-                    <TouchableOpacity style={styles.title} onPress={() => workspaceRef.current?.present()}>
-                        <Text style={{color: "rgb(161,161,169)", fontSize: 22, fontWeight: "bold"}}>My Workspace </Text>
-                        <Octicons name="chevron-down" size={23} color="rgb(161,161,169)" />
+                    <TouchableOpacity
+						style={styles.title}
+						onPress={() => router.push("/teamsSheet")}
+					>
+                        <Text style={{color: Color.titleText, fontSize: 22, fontWeight: "bold"}}>
+							{title}
+						</Text>
+                        <Octicons name="chevron-down" size={23} color={Color.titleText} />
                     </TouchableOpacity>
-                    <View style={{width: 90, alignItems: 'flex-end'}}>
-                        <AnimatedBtn onPress={() => tagRef.current?.present()} style={styles.tagBtn}>
-                            <Octicons name="tag" size={24} color="rgb(161,161,169)" />
-                            <Text style={{color: "rgb(161,161,169)", fontWeight: 'bold', fontSize: 15}}> Tags</Text>
+                    <View style={{width: 90,flexDirection: 'row', gap: 8, alignItems: 'flex-end'}}>
+                        <AnimatedBtn onPress={() => router.push("/tagSheet")} style={styles.tagBtn}>
+                            <Octicons name="tag" size={24} color={Color.titleText} />
+                        </AnimatedBtn>
+                        <AnimatedBtn onPress={searchOpen} style={styles.tagBtn}>
+                            <Octicons name="search" size={24} color={Color.titleText} />
                         </AnimatedBtn>
                     </View>
                 </View>
+				<Animated.View style={[styles.searchBarContainer, {top}]}>
+					<View style={styles.searchBarContainer2}>
+						<TextInput
+							value={query}
+							onChangeText={setQuery}
+							placeholder="Search Title"
+							placeholderTextColor={Color.text2}
+							style={styles.searchBar}
+						/>
+						<TouchableOpacity style={{padding: 10}} onPress={searchClose}>
+							<Octicons name="x" size={24} color={Color.text2} />
+						</TouchableOpacity>
+					</View>
+				</Animated.View>
                 <View style={{flex: 1}}>
-                    <FlatList
-                        data={notes}
+                    <LegendList
+                        data={selectedNotes}
                         renderItem={({item}) => (
-                            <ListItem ref={menuRef} setMenuId={menuId}
-                                id={item.id} title={item.title}
-                                time={new Date(item.lastChangedAt).toLocaleDateString()} />
+                            <ListItem
+                                id={notes[item].id} title={notes[item].title}
+                                time={new Date(notes[item].lastChangedAt).toLocaleDateString()} />
                         )}
+						refreshControl={
+							<RefreshControl refreshing={refresh} onRefresh={onRefresh} />
+						}
+						recycleItems
                     />
                 </View>
                 <AddBtn
                     style={styles.addBtn}
-                    onPress={() => addRef.current?.present()}
+                    onPress={() => router.push("/addSheet")}
                 >
-                    <Octicons name="plus" size={28} iconstyle={{color: 'white'}}/>
+                    <Octicons name="plus" size={28} color={Color.text2}/>
                 </AddBtn>
             </Drawer>
-            <WorkspaceSheet ref={workspaceRef} select={select} setSelect={setSelect}/>
-            <TagSheet ref={tagRef} notes={notes}/>
-            <AddSheet ref={addRef}/>
-            <ItemMenu ref={menuRef} id={menuId} refresh={fetchList} />
 		</SafeAreaView>
     );
 }

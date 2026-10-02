@@ -2,6 +2,9 @@ import markdownit from 'markdown-it';
 import { useEffect, useState } from 'react';
 import { Text, TextInput } from 'react-native';
 import { useApp } from '@/components/viewProvider';
+import useNote from '@/components/notePageState';
+import { useShallow } from 'zustand/react/shallow'
+import useTheme from '@/components/themeState';
 
 const text = `
 e\`rg\`er
@@ -48,7 +51,7 @@ const renderInline = (tokens: any[]) => {
 }
 
 const Parsed = ({content}: {content: string}) => {
-	const { Color } = useApp();
+	const Color = useTheme((state) => state.Color);
 	let [texts, setTexts] = useState<any[]>([]);
 	useEffect(() => {
 		let cur = 0;
@@ -97,26 +100,25 @@ const Parsed = ({content}: {content: string}) => {
 	)
 }
 
-
 export default function Edit() {
-	const [content, setContent] = useState(text);
 	const [select, setSelect] = useState({ start: 0, end: 0 })
-	const { Color } = useApp();
-
+	const Color = useTheme((state) => state.Color);
+	const { raw, setRaw } = useNote(useShallow((state:any) => ({raw: state.raw, setRaw: state.setRaw})));
 	const onPress = (e: any) => {
 		if(e.nativeEvent.key == "Enter" && select.start==select.end){
 			//todo
 		}
 	}
+
 	return (
 		<TextInput
 			style={{flex: 1, backgroundColor: Color.codeEditorbg, padding: 15, fontSize: 20}}
-			onChangeText={setContent}
+			onChangeText={setRaw}
 			onKeyPress={onPress}
 			onSelectionChange={(e) => setSelect(e.nativeEvent.selection)}
 			multiline
 		>
-			<Parsed content={content}/>
+			<Parsed content={raw}/>
 		</TextInput>
 	);
 }

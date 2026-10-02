@@ -1,8 +1,10 @@
 export const light = {
     text: 'rgb(39, 39, 42)',
-    text2: 'rgb(167, 167, 220)',
+    text2: 'white',
+	titleText: 'rgb(63, 63, 69)',
     background: 'rgb(253, 253, 253)',
-    secondary: 'rgb(48, 48, 54)',
+    secondary: 'rgb(244, 244, 245)',
+    secondaryTrans: 'rgb(244, 244, 245, 0.6)',
     selected: `rgb(228, 228, 231)`,
     borderSelected: 'rgb(113, 113, 121)',
     border: 'rgb(212, 212, 215)',
@@ -14,13 +16,16 @@ export const light = {
     dangerbg: `rgb(74, 47, 48)`,
     codeEditorbg: 'rgb(31, 33, 38)',
     accent: 'rgb(84, 77, 248)',
+    bottomBar: 'rgb(59, 55, 148)',
 };
 
 export const dark = {
     text: 'rgb(212, 212, 216)',
     text2: 'rgb(167, 167, 220)',
+	titleText: 'rgb(161,161,169)',
     background: 'rgb(39, 39, 42)',
     secondary: 'rgb(48, 48, 54)',
+    secondaryTrans: 'rgb(48, 48, 54, 0.6)',
     selected: `rgb(63, 63, 69)`,
     borderSelected: 'rgb(113, 113, 121)',
     border: 'rgb(63, 63, 69)',
@@ -32,6 +37,7 @@ export const dark = {
     dangerbg: `rgb(74, 47, 48)`,
     codeEditorbg: 'rgb(31, 33, 38)',
     accent: 'rgb(84, 77, 248)',
+    bottomBar: 'rgb(59, 55, 148)',
 };
 
 export type themeType = typeof light;

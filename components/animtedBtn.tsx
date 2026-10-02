@@ -1,6 +1,7 @@
 import { Pressable, type StyleProp, type ViewStyle } from "react-native";
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useApp } from '@/components/viewProvider';
+import useTheme from '@/components/themeState';
 
 type btnProp = {
     children?: React.ReactNode;
@@ -12,7 +13,7 @@ type btnProp = {
 
 export const AnimatedBtn = ({children, onPress, onLongPress, style, backgroundColor}:btnProp) => {
     const change = useSharedValue(0);
-	const { Color } = useApp();
+	const Color = useTheme((state) => state.Color);
     const anim = useAnimatedStyle(() => {
         return {
             backgroundColor: interpolateColor(
@@ -48,7 +49,7 @@ export const AnimatedBtn = ({children, onPress, onLongPress, style, backgroundCo
 
 export const AddBtn = ({children, onPress, onLongPress, style}:btnProp) => {
     const change = useSharedValue(0);
-	const { Color } = useApp();
+	const Color = useTheme((state) => state.Color);
     const anim = useAnimatedStyle(() => {
         return {
             backgroundColor: interpolateColor(

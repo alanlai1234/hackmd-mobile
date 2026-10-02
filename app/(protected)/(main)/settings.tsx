@@ -1,15 +1,24 @@
-import { View, ScrollView, Text, Pressable, Appearance, useColorScheme } from 'react-native';
-import { Stack } from 'expo-router';
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
-import { useRef } from 'react';
+import { Alert, TouchableOpacity, TextInput, View, ScrollView, Text} from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import { AnimatedBtn } from '@/components/animtedBtn';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useApp } from '@/components/viewProvider';
+import { useAuth } from '@/components/authProvider';
+import { useState } from 'react';
+import useTheme from '@/components/themeState';
+import { useShallow } from 'zustand/react/shallow';
+import useData from '@/components/dataState';
 
 export default function Settings(){
-	const themeMenuRef = useRef<TrueSheet>(null);
-	const { Color, settingsStyle: styles, setColorscheme, colorscheme } = useApp();
+	const router = useRouter();
+	const colorscheme = useData((state) => state.colorscheme);
+	const { styles, Color } = useTheme(useShallow((state)=>({styles: state.settingsStyle, Color: state.Color})));
+	const { login } = useAuth();
+	const [key, setKey] = useState("");
+	const onChangeKey = async () => {
+		const ret = await login(key);
+		if(ret == false) Alert.alert("Invalid API key");
+		else Alert.alert("API key changed")
+	}
 
 	return(
 		<View style={{flex: 1, backgroundColor: Color.background}}>
@@ -20,9 +29,9 @@ export default function Settings(){
 				headerTitle: "Settings",
                 headerShadowVisible: true,
             }}/>
-			<ScrollView style={{flex: 1}} bounces={false} overScrollMode="never">
-				<AnimatedBtn style={styles.item} onPress={() => themeMenuRef.current?.present()} backgroundColor={Color.background}>
-					<Text style={styles.text}>Choose Color Scheme</Text>
+			<ScrollView style={{flex: 1, gap: 5}} bounces={false} overScrollMode="never">
+				<AnimatedBtn style={styles.item} onPress={() => router.push("/colorschemeSheet")} backgroundColor={Color.background}>
+					<Text style={styles.text}>Select Colorscheme</Text>
 					<View style={styles.item}>
 						<Text style={[styles.text, {color: Color.text2}]}>{
 							colorscheme == 0 ? "System" :
@@ -31,46 +40,24 @@ export default function Settings(){
 						<Octicons name="chevron-right" size={23} color={Color.text}/>
 					</View>
 				</AnimatedBtn>
-			</ScrollView>
-
-			{/* bottom sheets */}
-			<TrueSheet ref={themeMenuRef} detents={['peek']}>
-				<View style={styles.sheet}>
-					<Pressable
-						accessibilityRole="button"
-						android_ripple={{color: Color.selected}}
-						onPress={() => setColorscheme(0)}
-						style={({pressed}) => [
-							styles.option,
-							pressed && styles.optionPressed,
-						]}
-					>
-						<Text style={styles.text}>Use System Default</Text>
-					</Pressable>
-					<Pressable
-						accessibilityRole="button"
-						android_ripple={{color: Color.selected}}
-						onPress={() => setColorscheme(1)}
-						style={({pressed}) => [
-							styles.option,
-							pressed && styles.optionPressed,
-						]}
-					>
-						<Text style={styles.text}>Dark</Text>
-					</Pressable>
-					<Pressable
-						accessibilityRole="button"
-						android_ripple={{color: Color.selected}}
-						onPress={() => setColorscheme(2)}
-						style={({pressed}) => [
-							styles.option,
-							pressed && styles.optionPressed,
-						]}
-					>
-						<Text style={styles.text}>Light</Text>
-					</Pressable>
+				<View style={[styles.item, {flexDirection: 'column'}]}>
+					<View style={{width: "100%"}}>
+						<Text style={[styles.text, {alignSelf: "flex-start"}]}>Set New API Key</Text>
+					</View>
+					<TextInput
+					  placeholder="API key"
+					  value={key}
+					  secureTextEntry
+					  onChangeText={setKey}
+					  autoCapitalize="none"
+					  autoCorrect={false}
+					  style={styles.input}
+					/>
+					<TouchableOpacity style={styles.button} onPress={onChangeKey}>
+						<Text style={styles.text}>Comfirm Change</Text>
+					</TouchableOpacity>
 				</View>
-			</TrueSheet>
+			</ScrollView>
 		</View>
 	)
 }

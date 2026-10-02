@@ -1,7 +1,7 @@
 import { useAuth } from '@/components/authProvider';
 import { dark as Color } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
 	StyleSheet,
     Alert,
@@ -12,6 +12,9 @@ import {
     TextInput,
     View
 } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+import * as SplashScreen from 'expo-splash-screen';
+SplashScreen.preventAutoHideAsync();
 
 export default function Login() {
     const { login, loading } = useAuth();
@@ -20,13 +23,24 @@ export default function Login() {
     const router = useRouter();
     const submit = async () => {
         if (!canSubmit) return;
-        if(await login("NX61QS4D8HTPCLJESTXT1JGMFG6QVEZ3YW29Y1P9EKHSKL07A")){
+        if(await login(key)){
+			SecureStore.setItem("APIkey", key)
             router.replace("/");
         }
         else{
-            Alert.alert("Invalid api key");
+            Alert.alert("Invalid API key");
         }
     };
+	useEffect(() => {
+		(async () => {
+			let get = SecureStore.getItem("APIkey");
+			if(get){
+				if(await login(get)) router.replace("/");
+				else Alert.alert("Invalid API key")
+			}
+			SplashScreen.hide();
+		})()
+	}, [])
 
     return (
     <KeyboardAvoidingView

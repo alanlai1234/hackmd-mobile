@@ -182,31 +182,12 @@ sup {
     list-style-type: lower-alpha;
 }
 
-.markdown-body h1 tt,
-.markdown-body h1 code,
-.markdown-body h2 tt,
-.markdown-body h2 code,
-.markdown-body h3 tt,
-.markdown-body h3 code,
-.markdown-body h4 tt,
-.markdown-body h4 code,
-.markdown-body h5 tt,
-.markdown-body h5 code,
-.markdown-body h6 tt,
-.markdown-body h6 code {
-    font-size: inherit;
-}
-
 .markdown-body h1 {
-    padding-bottom: 0.3em;
     font-size: 2em;
-    border-bottom: 1px solid #eee;
 }
 
 .markdown-body h2 {
-    padding-bottom: 0.3em;
     font-size: 1.5em;
-    border-bottom: 1px solid #eee;
 }
 
 .markdown-body h3 {
@@ -223,28 +204,6 @@ sup {
 
 .markdown-body h6 {
     font-size: 0.85em;
-    color: #777
-}
-
-
-
-.markdown-body ul,
-.markdown-body ol {
-    padding-left: 2em
-}
-
-.markdown-body ul.no-list,
-.markdown-body ol.no-list {
-    padding: 0;
-    list-style-type: none;
-}
-
-.markdown-body ul ul,
-.markdown-body ul ol,
-.markdown-body ol ol,
-.markdown-body ol ul {
-    margin-top: 0;
-    margin-bottom: 0
 }
 
 .markdown-body li>p {
@@ -327,94 +286,6 @@ sup {
     background-color: transparent;
 }
 
-.markdown-body span.frame {
-    display: block;
-    overflow: hidden;
-}
-
-.markdown-body span.frame>span {
-    display: block;
-    float: left;
-    width: auto;
-    padding: 7px;
-    margin: 13px 0 0;
-    overflow: hidden;
-    border: 1px solid #ddd;
-}
-
-.markdown-body span.frame span img {
-    display: block;
-    float: left;
-}
-
-.markdown-body span.frame span span {
-    display: block;
-    padding: 5px 0 0;
-    clear: both;
-    color: #333;
-}
-
-.markdown-body span.align-center {
-    display: block;
-    overflow: hidden;
-    clear: both;
-}
-
-.markdown-body span.align-center>span {
-    display: block;
-    margin: 13px auto 0;
-    overflow: hidden;
-    text-align: center;
-}
-
-.markdown-body span.align-center span img {
-    margin: 0 auto;
-    text-align: center;
-}
-
-.markdown-body span.align-right {
-    display: block;
-    overflow: hidden;
-    clear: both;
-}
-
-.markdown-body span.align-right>span {
-    display: block;
-    margin: 13px 0 0;
-    overflow: hidden;
-    text-align: right;
-}
-
-.markdown-body span.align-right span img {
-    margin: 0;
-    text-align: right;
-}
-
-.markdown-body span.float-left {
-    display: block;
-    float: left;
-    margin-right: 13px;
-    overflow: hidden;
-}
-
-.markdown-body span.float-left span {
-    margin: 13px 0 0;
-}
-
-.markdown-body span.float-right {
-    display: block;
-    float: right;
-    margin-left: 13px;
-    overflow: hidden;
-}
-
-.markdown-body span.float-right>span {
-    display: block;
-    margin: 13px auto 0;
-    overflow: hidden;
-    text-align: right;
-}
-
 .markdown-body code,
 .markdown-body tt {
     padding: 0;
@@ -432,14 +303,6 @@ sup {
     color: #eee;
     background-color: rgba(230, 230, 230, 0.36);
 
-}
-
-.markdown-body code::before,
-.markdown-body code::after,
-.markdown-body tt::before,
-.markdown-body tt::after {
-    letter-spacing: -0.2em;
-    content: "\0\0a0";
 }
 
 .markdown-body code br,

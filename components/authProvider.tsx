@@ -39,7 +39,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
         }
     };
     const logout = () => {};
-    const [loggedIn, setLoggedIn] = useState(true); //tmp
+    const [loggedIn, setLoggedIn] = useState(false); //tmp
     const [loading, setLoading] = useState(false);
 
     return(
