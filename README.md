@@ -4,6 +4,8 @@ Utilizes [hackmdio/api-client](https://github.com/hackmdio/api-client/tree/devel
 * Optimized state management
 * As much native libraries as possible
 
+https://github.com/user-attachments/assets/b088e2d4-ad3f-4bb9-9b46-0511b0493052
+
 Current features:
 * Folders support(in development)
 * Light/Dark theme support
