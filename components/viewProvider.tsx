@@ -56,14 +56,14 @@ export const AppProvider = ({children}: {children: React.ReactNode}) => {
 
     async function fetchList(){
 		if(curTeam.current == -1){
-			setTitle("My Workspace");
 			const list = await client?.getNoteList();
 			if(list) setNotes(list);
+			setTitle("My Workspace");
 		}
 		else{
-			setTitle(teams.current[curTeam.current].name);
 			const list = await client?.getTeamNotes(teams.current[curTeam.current].path)
 			if(list) setNotes(list);
+			setTitle(teams.current[curTeam.current].name);
 		}
 		setRefresh(false);
     }

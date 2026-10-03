@@ -9,6 +9,7 @@ import { MenuView } from '@expo/ui/community/menu';
 import useNote from '@/components/notePageState';
 import { useShallow } from 'zustand/react/shallow'
 import useTheme from '@/components/themeState';
+import useData from '@/components/dataState';
 
 export const unstable_settings = {
   initialRouteName: 'view',
@@ -58,7 +59,7 @@ const Tablist = ({select, setSelect, id}: {select: number, setSelect: any, id: s
 }
 
 const Menu = ({id}: {id: string}) => {
-	const {  setRefresh } = useApp();
+	const setRefresh = useData((state) => state.setRefresh);
     const { client } = useAuth();
 	const router = useRouter();
 	const actionfunc = {
@@ -121,6 +122,7 @@ export default function Layout() {
 	useFocusEffect(useCallback(() => {
 		if (!client || !id) return;
 		if(id == "-1") return;
+		setRaw("");
 		initload();
 		const stream = setInterval(() => {
 			client?.getNote(id, {unwrapData: false, etag:etag})

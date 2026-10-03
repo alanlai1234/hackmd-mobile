@@ -2,9 +2,9 @@ import { DocumentIcon } from '@/assets/icons';
 import { AddBtn, AnimatedBtn } from '@/components/animtedBtn';
 import { DrawerContent } from '@/components/drawer';
 import Octicons from '@expo/vector-icons/Octicons';
-import { Note } from '@hackmd/api';
+import { GetUserNotes, Note } from '@hackmd/api';
 import { Stack, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import { TextInput, Text, TouchableOpacity, View, RefreshControl } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -54,6 +54,28 @@ const ListItem = ({id, title, time}: noteItem) => {
     );
 }
 
+const List = memo(({selectedNotes}:{selectedNotes: GetUserNotes}) => {
+	const { fetchList } = useApp();
+	const { refresh, setRefresh } = useData(useShallow((s)=>({refresh:s.refresh, setRefresh:s.setRefresh})));
+	const onRefresh = useCallback(() => {
+		setRefresh(true);
+		fetchList();
+	}, []);
+
+	return <LegendList
+		data={selectedNotes}
+		renderItem={({item}) => {
+			return (<ListItem
+				id={item.id} title={item.title}
+				time={new Date(item.lastChangedAt).toLocaleDateString()} />)
+		}}
+		refreshControl={
+			<RefreshControl refreshing={refresh} onRefresh={onRefresh} />
+		}
+		recycleItems
+	/>
+})
+
 export default function Home(){
     // tmp
     // let notes: GetUserNotes[] = [];
@@ -66,13 +88,13 @@ export default function Home(){
     //     });
     // }
 	const { styles, Color } = useTheme(useShallow((state)=>({styles: state.indexStyle, Color: state.Color})));
-	const { fetchList} = useApp();
-	const { notes, title, refresh, setRefresh, selectedTags} = useData(useShallow((s)=>({notes:s.notes, title:s.title, refresh:s.refresh, setRefresh:s.setRefresh, selectedTags:s.selectedTags})));
-	const [selectedNotes, setSelectedNotes] = useState<number[]>([]);
-	const taggedNotes = useRef<number[]>([]);
+	const { fetchList } = useApp();
+	const { notes, title, refresh, selectedTags} = useData(useShallow((s)=>({notes:s.notes, title:s.title, refresh:s.refresh, setRefresh:s.setRefresh, selectedTags:s.selectedTags})));
+	const [selectedNotes, setSelectedNotes] = useState<GetUserNotes>([]);
+	const taggedNotes = useRef<GetUserNotes>([]);
 	const updateSelectedNotes = () => {
 		if(query == "") setSelectedNotes(taggedNotes.current);
-		else setSelectedNotes(taggedNotes.current.filter((item) => notes[item].title.toLowerCase().includes(query.toLowerCase())))
+		else setSelectedNotes(taggedNotes.current.filter((item) => item.title.toLowerCase().includes(query.toLowerCase())))
 	}
 
 	useEffect(() => {
@@ -81,24 +103,26 @@ export default function Home(){
 		}
 	}, [refresh])
 	useEffect(() => {
-		taggedNotes.current = Array.from({length: notes.length}, (_, index) => index);
+		taggedNotes.current = notes
 		updateSelectedNotes();
 	}, [notes])
 	useEffect(() => {
 		if(selectedTags.size == 0){
-			taggedNotes.current = Array.from({length: notes.length}, (_, index) => index);
+			taggedNotes.current = notes
 			updateSelectedNotes();
 			return;
 		}
-		taggedNotes.current = []
-		notes.forEach((item: Note, index) => {
-			if(item.tags == undefined) return;
-			item.tags.forEach((tag: string) => {
+		taggedNotes.current = notes.filter((item: Note) => {
+			if(item.tags == undefined) return false;
+			let found = false;
+			item.tags.every((tag: string) => {
 				if(selectedTags.has(tag)){
-					taggedNotes.current.push(index);
-					return;
+					found = true;
+					return false;
 				}
+				return true
 			})
+			return found;
 		}) 
 		updateSelectedNotes();
 	}, [selectedTags])
@@ -117,11 +141,6 @@ export default function Home(){
 	useEffect(() => {
 		updateSelectedNotes();
 	}, [query])
-
-	const onRefresh = useCallback(() => {
-		setRefresh(true);
-		fetchList();
-	}, []);
 
     return (
 		<SafeAreaView style={{flex: 1, backgroundColor: Color.background}}>
@@ -172,18 +191,7 @@ export default function Home(){
 					</View>
 				</Animated.View>
                 <View style={{flex: 1}}>
-                    <LegendList
-                        data={selectedNotes}
-                        renderItem={({item}) => (
-                            <ListItem
-                                id={notes[item].id} title={notes[item].title}
-                                time={new Date(notes[item].lastChangedAt).toLocaleDateString()} />
-                        )}
-						refreshControl={
-							<RefreshControl refreshing={refresh} onRefresh={onRefresh} />
-						}
-						recycleItems
-                    />
+					<List selectedNotes={selectedNotes}/>
                 </View>
                 <AddBtn
                     style={styles.addBtn}
